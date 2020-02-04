@@ -25,6 +25,7 @@ Non-exclusive credits for TLS are:
    Original work: Matt Newman @ Novadigm
    Updates: Jeff Hobbs @ ActiveState
    Tcl Channel mechanism: Andreas Kupries
+   FIPS 140-2 module control: Shaun Lowry @ ActiveState
    Impetus/Related work: tclSSL (Colin McCormack, Shared Technology)
                          SSLtcl (Peter Antman)
 

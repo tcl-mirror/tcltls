@@ -61,6 +61,11 @@ static int	MiscObjCmd(ClientData clientData,
 static int	UnimportObjCmd(ClientData clientData,
 			Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]);
 
+#ifdef OPENSSL_FIPS
+static int	FIPSModeSetObjCmd(ClientData clientData,
+			Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]);
+#endif
+
 static SSL_CTX *CTX_Init(State *statePtr, int isServer, int proto, char *key,
 			char *cert, char *CAdir, char *CAfile, char *ciphers,
 			char *DHparams);
@@ -1621,6 +1626,88 @@ MiscObjCmd(clientData, interp, objc, objv)
 /*
  *-------------------------------------------------------------------
  *
+ * FIPSModeSetObjCmd -- set FIPS mode
+ *
+ * Results:
+ *	A standard Tcl result indicating the status of the FIPS module
+ *	0 - inactive
+ *	1 - active
+ *
+ * Side effects:
+ *	Enables/disables OpenSSL's FIPS 140-2 mode.
+ *
+ *-------------------------------------------------------------------
+ */
+#ifdef OPENSSL_FIPS
+static int
+FIPSModeSetObjCmd(clientData, interp, objc, objv)
+    ClientData clientData;  /* Not used */
+    Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST objv[];
+{
+    int mode, err, ret = 0;
+    Tcl_Obj *objPtr;
+
+    if (objc != 2) {
+	Tcl_WrongNumArgs(interp, 1, objv, "mode");
+	return TCL_ERROR;
+    }
+    if (Tcl_GetIntFromObj(interp, objv[1], &mode) != TCL_OK) {
+	return TCL_ERROR;
+    }
+
+    ret = FIPS_mode_set(mode);
+    if(ret != 1)
+    {
+        err = ERR_get_error();
+	Tcl_SetResult(interp, ERR_error_string(ERR_get_error(), NULL), NULL);
+	return TCL_ERROR;
+    }
+
+    ret = FIPS_mode();
+    objPtr = Tcl_NewIntObj(ret);
+    Tcl_SetObjResult(interp, objPtr);
+
+    return TCL_OK;
+}
+
+/*
+ *-------------------------------------------------------------------
+ *
+ * FIPSModeObjCmd -- get FIPS mode
+ *
+ * Results:
+ *	A standard Tcl result indicating the status of the FIPS module
+ *	0 - inactive
+ *	1 - active
+ *
+ * Side effects:
+ *	None.
+ *
+ *-------------------------------------------------------------------
+ */
+static int
+FIPSModeObjCmd(clientData, interp, objc, objv)
+    ClientData clientData;  /* Not used */
+    Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST objv[];
+{
+    int ret = 0;
+    Tcl_Obj *objPtr;
+
+    ret = FIPS_mode();
+    objPtr = Tcl_NewIntObj(ret);
+    Tcl_SetObjResult(interp, objPtr);
+
+    return TCL_OK;
+}
+#endif
+
+/*
+ *-------------------------------------------------------------------
+ *
  * Tls_Free --
  *
  *	This procedure cleans up when a SSL socket based channel
@@ -1750,6 +1837,10 @@ int Tls_Init(Tcl_Interp *interp) {
 	Tcl_CreateObjCommand(interp, "tls::status", StatusObjCmd, (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
 	Tcl_CreateObjCommand(interp, "tls::version", VersionObjCmd, (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
 	Tcl_CreateObjCommand(interp, "tls::misc", MiscObjCmd, (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
+#ifdef OPENSSL_FIPS
+	Tcl_CreateObjCommand(interp, "tls::FIPS_mode_set", FIPSModeSetObjCmd, (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
+	Tcl_CreateObjCommand(interp, "tls::FIPS_mode", FIPSModeObjCmd, (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
+#endif
 
 	if (interp) {
 		Tcl_Eval(interp, tlsTclInitScript);

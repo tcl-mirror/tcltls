@@ -216,6 +216,21 @@ if test "$tcltls_ssl_lib" = "libressl"; then
 	tcltls_ssl_lib='openssl'
 fi
 
+dnl Enable OpenSSL FIPS mode control
+tcltls_enable_fips_control='no'
+AC_ARG_ENABLE([fips-control], AS_HELP_STRING([--enable-fips-control], [enable control of the OpenSSL FIPS module]), [
+	if test "$enableval" = 'yes'; then
+		tcltls_enable_fips_control='yes'
+	else
+		tcltls_enable_fips_control='no'
+	fi
+    if test "$tcltls_enable_fips_control" = 'yes'; then
+        if test "$tcltls_ssl_lib" = 'openssl'; then
+            AC_DEFINE([OPENSSL_FIPS], [1], [Enable FIPS mode control])
+        fi
+    fi
+])
+
 AS_CASE([$tcltls_ssl_lib],
 	[openssl], [
 		TCLTLS_SSL_OPENSSL

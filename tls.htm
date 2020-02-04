@@ -32,6 +32,8 @@ content="text/html; charset=iso-8859-1">
             <dd><b>tls::unimport</b><em> channel</em></dd>
             <dd><b>tls::ciphers </b><em>protocol ?verbose?</em></dd>
             <dd><b>tls::version</b></dd>
+            <dd><b>tls::FIPS_mode_set </b><em>mode</em></dd>
+            <dd><b>tls::FIPS_mode</b></dd>
         </dl>
     </dd>
     <dd><a href="#COMMANDS">COMMANDS</a></dd>
@@ -54,6 +56,7 @@ toolkit.</p>
 <b>package require tls @@VERS@@</b><br>
 <br>
 <a href="#tls::init"><b>tls::init </b><i>?options?</i><br>
+<a href="#tls::FIPS_mode_set"><b>tls::FIPS_mode_set </b><i>mode</i><br>
 </a><a href="#tls::socket"><b>tls::socket </b><em>?options? host
 port</em><br>
 <b>tls::socket</b><em> ?-server command? ?options? port</em><br>
@@ -249,6 +252,22 @@ used directly.</p>
 <dl>
     <dt><a name="tls::version"><strong>tls::version</strong></a></dt>
     <dd>Returns the version string defined by OpenSSL.</dd>
+</dl>
+
+<dl>
+    <dt><a name="tls::FIPS_mode"><strong>tls::FIPS_mode</strong></a></dt>
+    <dd>If compiled with the optional FIPS 140-2 control and the OpenSSL
+    FIPS 140-2 module is available, returns the status of the FIPS module.
+    1 for active, 0 for inactive.</dd>
+</dl>
+
+<dl>
+    <dt><a name="tls::FIPS_mode_set"><strong>tls::FIPS_mode_set</strong>
+        <em>mode</em></a></dt>
+    <dd>If compiled with the optional FIPS 140-2 control and the OpenSSL
+    FIPS 140-2 module is available, sets the status of the FIPS module.
+    1 for active, 0 for inactive.  Returns the current mode if successful,
+    throws an error on failure.</dd>
 </dl>
 
 <h3><a name="CALLBACK OPTIONS">CALLBACK OPTIONS</a></h3>
